@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register IT Baby</title>
+</head>
+<body>
+<p>welcome</p>
+<div>
+    <input type="text" name="username" id="username">
+    <input type="password" name="password" id="password">
+    <input type="text" name="email" id="email"/>
+    <input type="text" name="checkcode" id="checkcode"/>
+    <input type="button" id="getCheckCode" value="获取验证码"/>
+    <button type="button" id="registerBtn">注册</button>
+</div>
+</body>
+<!--<script th:href="@{/static/js/jquery/jquery.min.js}" type="text/javascript"></script>-->
+<!--<script th:href="@{/static/js/jquery/jQuery.js}" type="text/javascript"></script>-->
+<!--<script th:href="@{/static/js/jquery/jquery-1.11.0.min.js}" type="text/javascript"></script>-->
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var timer;
+
+        $("#checkcode").hide();
+        //获取邮箱验证码
+        $("#getCheckCode").click(function () {
+            window.alert("验证码已发送");
+            var username = $("#username").val();
+            var password = $("#password").val();
+            var email = $("#email").val();
+            if(username == null||password == null||email == null ){
+                console.log("注册信息不能为空")
+            }else {
+                $.ajax({
+                    type:"POST",
+                    url:"/email_check",
+                    dataType:"json",
+                    data:{
+                        "username":username,
+                        "password":password,
+                        "email":email
+                    },
+                    success:function (msg) {
+                        console.log(msg);
+                        if(msg.state=="SUCCESS"){
+                            $("#checkcode").show();
+                            //验证码计时
+                            calTime();
+                            timer = window.setTimeout(calTime,1000);
+                        }else if(msg.state == "FAILURE"){
+                            window.alert("请输入正确的注册信息！");
+                        }
+                    },
+                    error:function (msg) {
+                        console.log(msg);
+                    }
+                })
+            }
+        })
+
+        //验证码计时器
+        var time = 120;
+        function calTime(){
+            if(time>0){
+                $("#getCheckCode").val("("+time+"s)后重发");
+                $("#getCheckCode").prop("disabled",true);
+                time--;
+            }else{
+                window.clearInterval(timer);
+                $("#getCheckCode").val("点击重发");
+                $("#getCheckCode").prop("disabled",false);
+                time = 120;
+                return;
+            }
+
+        }
+
+        //提交注册信息
+        $("#registerBtn").click(function () {
+            var username = $("#username").val();
+            var password = $("#password").val();
+            var email = $("#email").val();
+            var checkcode = $("#checkcode").val();
+            if(username == null||password == null||email == null ){
+                console.log("注册信息不能为空")
+            }else {
+                $.ajax({
+                    type:"POST",
+                    url:"/register",
+                    dataType:"json",
+                    data:{
+                        "username":username,
+                        "password":password,
+                        "email":email,
+                        "checkcode":checkcode
+                    },
+                    success:function (msg) {
+                        console.log(msg);
+                        if(msg.state=="SUCCESS"){
+                            window.alert("注册成功！");
+                            window.location.href="/";  //注册成功后转到登录页面
+                        }else if(msg.state == "FAILURE"){
+                            window.alert("请输入正确的注册信息！");
+                        }
+                    },
+                    error:function (msg) {
+                        console.log(msg);
+                    }
+                })
+            }
+        })
+
+
+    })
+</script>
+</html>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--若报错：URI is not registered (Settings | Languages & Frameworks | Schemas and DTDs)-->
+<!--则将该url配置到settings中的Schemas and DTDs中-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace= "com.userinfotemplate.demo.mapper.BlogMapper" >
+    <resultMap id ="BlogMapper" type="com.userinfotemplate.demo.entity.Blog">
+        <result column="blog_id" property="blog_id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="blog_type" property="blog_type"/>
+        <result column="create_time" property="create_time"/>
+        <result column="blog_content" property="blog_content"/>
+    </resultMap>
+
+
+    <insert id = "saveNewBlog"  useGeneratedKeys="true" keyProperty="blog_id"  parameterType="com.userinfotemplate.demo.entity.Blog">
+        <!--<selectKey resultType="java.lang.Integer" keyProperty="blog_id" order="AFTER">-->
+            <!--SELECT LAST_INSERT_ID() as blog_id-->
+        <!--</selectKey>-->
+        insert into `blog`(`blog_type`,`create_time`,`blog_addr`,`user_id`,`blog_title`)
+        values (#{blog_type},#{create_time},#{blog_addr},#{user_id},#{blog_title});
+
+    </insert>
+
+
+    <!--根据user_id查询该用户的所有博客-->
+    <select id = "getBlogsByUserId" resultType="com.userinfotemplate.demo.entity.Blog" parameterType="java.lang.Integer">
+        select * from `blog` where `user_id`=#{user_id}  order by `create_time` desc
+        <if test="startIndex != null and step != null">
+            limit #{startIndex},#{step};
+        </if>
+    </select>
+
+    <!--查询这个用户所有博客的数量-->
+    <select id="blogCount" parameterType="com.userinfotemplate.demo.entity.Blog" resultType="java.lang.Integer">
+        select count(*) from `blog` where `user_id` = #{user_id};
+    </select>
+
+    <!--分页查询：-->
+    <select id="getBlogsByPage" resultType="com.userinfotemplate.demo.entity.Blog">
+    select * from `blog` where `user_id`=#{user_id}  order by `create_time` desc
+    <if test="startIndex != null and step != null">
+        limit #{startIndex},#{step};
+    </if>
+    </select>
+
+    <select id="getBlogType" resultType="java.lang.String" parameterType="java.lang.Integer">
+        select `blog_type` from `blog` where `user_id` = #{user_id};
+    </select>
+
+    <!--按照博客分类标签查询博客-->
+    <select id="getBlogByType" parameterType="com.userinfotemplate.demo.entity.Blog" resultType="com.userinfotemplate.demo.entity.Blog">
+        select * from `blog` where `user_id`=#{user_id} and `blog_type`=#{blog_type} order by `create_time` desc;
+        <!--<if test="startIndex != null and step != null">-->
+            <!--limit #{startIndex},#{step};-->
+        <!--</if>-->
+    </select>
+
+    <select id="getblogCountByType" resultType="java.lang.Integer" parameterType="com.userinfotemplate.demo.entity.Blog">
+        select count(*) from  `blog` where `user_id`=#{user_id} and `blog_type`=#{blog_type};
+    </select>
+
+    <!--博客模糊搜索，按照博客分类和标题-->
+    <select id="getBlogSearchByKeywords" resultType="com.userinfotemplate.demo.entity.Blog">
+        select * from `blog` where `blog_type` like concat('%',#{blogSearchKeywords},'%') or `blog_title` like concat('%',#{blogSearchKeywords},'%')
+          order by `create_time` desc;
+    </select>
+
+    <select id="getAllBlogsByUserId" resultType="com.userinfotemplate.demo.entity.Blog">
+        select * from `blog` where `user_id` = #{user_id};
+    </select>
+
+</mapper>

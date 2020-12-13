@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>IT Baby</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <!--<link rel="shortcut icon" href="ico地址" type="image/x-icon" />-->
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
+</head>
+
+<body class="gray-bg">
+
+<div class="middle-box text-center loginscreen  animated fadeInDown">
+    <div style="display: inline-block;float: left">
+
+    </div>
+    <div style="display: inline-block;float: right">
+        <div>
+            <h1 class="logo-name">h</h1>
+
+        </div>
+        <h3>欢迎使用 hAdmin</h3>
+
+        <form class="m-t" >
+            <div class="form-group">
+                <input type="email" class="form-control" placeholder="用户名/邮箱" required="required" id="userlogininfo" >
+            </div>
+
+            <div class="form-group">
+                <input type="password" class="form-control" placeholder="密码" required="required" id="password">
+            </div>
+            <button class="btn btn-primary block full-width m-b" id="loginBtn">登 录</button>
+
+            <p class="text-muted text-center"> <a href="login.html#"><small>忘记密码了？</small></a> | <a href="/register">注册一个新账号</a>
+            </p>
+
+        </form>
+    </div>
+</div>
+<div style="margin-left: 100px">
+    <h2 style="color: red">声明：</h2><h3>用户名为“<b style="color: red">我是测试用户。。。</b>”，密码为“<b style="color: red">123456</b>”的账号才能获得分页的查询数据~</h3>
+</div>
+
+
+<!-- 全局js -->
+<script src="js/jquery.min.js?v=2.1.4"></script>
+<script src="js/bootstrap.min.js?v=3.3.6"></script>
+<!--我自己写的js-->
+<script src="js/customize.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#loginBtn").click(function () {
+            var userlogininfo = $("#userlogininfo").val();
+            var password = $("#password").val();
+            if(userlogininfo == "" || password == "" || userlogininfo == null || password == null){
+                window.alert("登录信息不能为空！")
+            }else {
+                $.ajax({
+                    type:"POST",
+                    url:"/login",
+                    dataType:"json",
+                    data:{
+                        "userlogininfo":userlogininfo,
+                        "password":password
+                    },
+                    success:function (msg) {
+                        console.log(msg);
+                        if(msg.state == "SUCCESS"){
+                            for(var i=0;i<msg.data.length;i++){
+                                setCookie(msg.data[i],msg.data[i].split("=")[1],86400);
+                            }
+                            window.location.href = "/userpage";  //注意url是"/userpage"，而不是"userpage.html"，因为controller中是@RequestMapping("/userpage")
+                        }else if(msg.state == "FAILURE"){
+                            window.alert("用户名或密码不正确！")
+                            window.location.reload();
+                        }
+                    },
+                    error:function (msg) {
+                        console.log(msg);
+                    }
+                })
+            }
+        })
+
+    })
+</script>
+
+</body>
+
+</html>

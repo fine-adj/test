@@ -1,0 +1,3 @@
+① 当对redis的操作满足配置文件中配置的save规则时就会触发RDB持久化；
+② 当执行flushall命令的时候，会触发RDB；
+③ 退出redis会触发RDB。

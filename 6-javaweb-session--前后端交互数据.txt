@@ -1,0 +1,4 @@
+### 1. HttpSession在后台的应用：
+##### controller层通过session.setAttribute("key",value);将数据存入session
+### 2. 前端的thymeleaf如何获取：
+##### th:text="session.key"直接在页面就拿到了！！！

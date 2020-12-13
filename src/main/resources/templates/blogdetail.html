@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>blogdetail</title>
+</head>
+<link rel="stylesheet" href="editormd/css/editormd.css" />
+<link rel="shortcut icon" href="img/favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+<link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+<link href="css/animate.css" rel="stylesheet">
+<link href="css/style.css?v=4.1.0" rel="stylesheet">
+
+<script src="js/jquery.min.js?v=2.1.4"></script>
+<script src="js/bootstrap.min.js?v=3.3.6"></script>
+<script src="editormd/lib/marked.min.js"></script>
+<script src="editormd/lib/prettify.min.js"></script>
+<script src="editormd/lib/raphael.min.js"></script>
+<script src="editormd/lib/underscore.min.js"></script>
+<script src="editormd/lib/sequence-diagram.min.js"></script>
+<script src="editormd/lib/flowchart.min.js"></script>
+<script src="editormd/editormd.js"></script>
+<!-- 自定义js -->
+<script src="js/content.js?v=1.0.0"></script>
+
+<body class="gray-bg" background="/img/itimage2.jpg" style="background-size: 100%">
+<div class="wrapper wrapper-content  animated fadeInRight article">
+    <div class="row">
+        <div class="col-lg-10 col-lg-offset-1">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <div class="pull-right">
+                        <button class="btn btn-white btn-xs" type="button" href="/userpage">返回</button>
+                        <button class="btn btn-white btn-xs" type="button">BeginOne</button>
+                        <button class="btn btn-white btn-xs" type="button">sss</button>
+                    </div>
+                    <div class="text-center article-title" id="blogTile">
+                       <!--动态加载进来标题-->
+                    </div>
+                    <div id="blogContent">
+                        <!--动态加载进来内容-->
+                        <div id="layout"  class="editor">
+                            <div id="test-editormd" >
+                                <textarea></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h2>评论：</h2>
+                            <div class="social-feed-box">
+                                <div class="social-avatar">
+                                    <a href="" class="pull-left">
+                                        <img alt="image" src="img/a1.jpg">
+                                    </a>
+                                    <div class="media-body">
+                                        <a href="#">
+                                            123
+                                        </a>
+                                        <small class="text-muted">17 小时前</small>
+                                    </div>
+                                </div>
+                                <div class="social-body">
+                                    <p>
+                                        123456789
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="social-feed-box">
+                                <div class="social-avatar">
+                                    <a href="" class="pull-left">
+                                        <img alt="image" src="img/a2.jpg">
+                                    </a>
+                                    <div class="media-body">
+                                        <a href="#">
+                                            adc
+                                        </a>
+                                        <small class="text-muted"> 16 小时前</small>
+                                    </div>
+                                </div>
+                                <div class="social-body">
+                                    <p>
+                                        sdssfbg
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="social-feed-box">
+                                <div class="social-avatar">
+                                    <a href="" class="pull-left">
+                                        <img alt="image" src="img/a3.jpg">
+                                    </a>
+                                    <div class="media-body">
+                                        <a href="#">
+                                            wqdsffvbg
+                                        </a>
+                                        <small class="text-muted"> 6 小时前</small>
+                                    </div>
+                                </div>
+                                <div class="social-body">
+                                    <p>
+                                        wsdffbg
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="social-feed-box">
+                                <div class="social-avatar">
+                                    <a href="" class="pull-left">
+                                        <img alt="image" src="img/a5.jpg">
+                                    </a>
+                                    <div class="media-body">
+                                        <a href="#">
+                                            kamppi
+                                        </a>
+                                        <small class="text-muted">6 小时前</small>
+                                    </div>
+                                </div>
+                                <div class="social-body">
+                                    <p>
+                                        sadfghghj
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="social-comment">
+                                <a href="" class="pull-left">
+                                    <img alt="image" src="img/a3.jpg">
+                                </a>
+                                <div class="media-body">
+                                    <textarea class="form-control" placeholder="填写评论..."></textarea>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        var blogTile = localStorage.getItem("blogTitle");
+        $("#blogTile").append(" <h1>" + blogTile + "</h1>");
+        var blogContent = localStorage.getItem("blogContent");
+        var deal = blogContent.split("[")[1].split("]")[0];
+
+        testEditor = editormd.markdownToHTML("test-editormd", {
+            markdown:deal,
+            // markdown : "## This is markdown demo。### demo2",
+            htmlDecode      : "style,script,iframe",  // you can filter tags decode
+            emoji           : true,
+            taskList        : true,
+            tex             : true,  // 默认不解析
+            // flowChart       : true,  // 默认不解析
+            sequenceDiagram : true,  // 默认不解析
+        });
+
+        // console.log("blogTile="+blogTile);
+        // console.log("blogContent="+blogContent);
+
+    })
+</script>
+</body>
+</html>

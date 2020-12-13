@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>bloglist</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="img/favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+</head>
+<style>
+    #content_line_limit{
+        overflow:hidden;
+        text-overflow:ellipsis;
+        display:-webkit-box;
+        -webkit-box-orient:vertical;
+        -webkit-line-clamp:2;         /*(这里是行数 你可以控制你想在第几行末尾多余的显示省略号，之前的文本正常显示)*/
+        font-size: 15px;
+    }
+    .page ul{
+        padding:0;
+        min-width: 450px;
+    }
+    .page ul::after{
+        content: '';
+        display: block;
+        clear: both;
+    }
+    .page ul li{
+        float: left;
+        width:auto;
+        min-width:32px;
+        height: 30px;
+        line-height:30px;
+        list-style: none;
+    }
+    .page a{
+        color:#aaa;
+        font-family: "微软雅黑";
+        padding:0 10px;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-left: none;
+    }
+    .page ul li:first-child a{
+        border-left: 1px solid #ccc;
+    }
+
+    .page ul li a:hover{
+        background-color: dodgerblue;
+    }
+    .page ul li a:hover{
+        color: white;
+    }
+    .page .disabled a:hover{
+        background-color: white;
+        cursor:not-allowed;
+        color: #aaa;
+    }
+    .page .active a{
+        background-color: dodgerblue;
+        color: white;
+    }
+</style>
+<body>
+<!--<div class="wrapper wrapper-content">-->
+    <!--<div class="row" style="width: 90%;margin: 0 auto">-->
+        <!--右侧博客列表区域-->
+        <div class="col-sm-9 animated fadeInRight" id="rightBlogArea">
+            <div class="row">
+                <!--box中表示的是每个博客列表-->
+                <div class="col-sm-12" id="blog_list">
+                    <!--动态加进来-->
+                </div>
+                <!--页码-->
+                <div>
+                    <!--<span th:text="${session.blogCount}" style="font-size: 10px">共x页</span>-->
+                    <div style="display: inline-block;float: left" >
+                        <ul class="pagination" >
+                            <li><a value="last" class="lastPage">&laquo;</a></li>
+                        </ul>
+                        <ul class="pagination" id="pageHtml">
+                            <!--动态加载进来-->
+                        </ul>
+                        <ul class="pagination">
+                            <li><a value="next" class="nextPage">&raquo;</a></li>
+                        </ul>
+                        <div id="totalPage" style="display: inline-block;"></div>
+                        <div id="presentPage" style="display: inline-block;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!--</div>-->
+<!--</div>-->
+    <!--<div id="bloglist" th:each="blog:${session.test}">-->
+        <!--<div th:utext="${blog}">-->
+
+        <!--</div>-->
+    <!--</div>-->
+<script src="js/jquery.min.js?v=2.1.4"></script>
+<script src="js/bootstrap.min.js?v=3.3.6"></script>
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            type:"POST",
+            url:"/test",
+            dataType:"json",
+            data:{
+                "user_id":6
+            }
+        })
+
+
+
+        //想要正确显示博客列表需要的信息：
+        //1. 从数据库查到的博客表的那些字段：List<Blog>
+        //2. 根据从数据库查到的博客地址，从文件中读取blog_content
+        //3. 条件查询后的博客总数：用于返回给前端进行分页的设置，因此所有的查询都要limit了
+
+        $.ajax({
+            type:"POST",
+            url:"/userpage/getblog",
+            dataType:"json",
+            data:{
+                "user_id":getCookie("user_id")
+            },
+            success:function (msg) {
+                console.log(msg);
+                if(msg[0].state === "SUCCESS"){
+                    //加载页面右侧的博客列表
+                    loadBlogList(msg[0].data);
+                    setPageAccordingBlogCount(msg[1]);     //msg[1]表示的是博客总数
+                }else if(msg.state === "FAILURE"){
+                    //在页面显示没有博客
+                    //TODO
+                    window.alert("该用户没有博客！")
+                }
+            }
+        })
+
+        function getCookie(key){
+            var arr1=document.cookie.split("; ");//由于cookie是通过一个分号+空格的形式串联起来的，所以这里需要先按分号空格截断,变成[name=Jack,pwd=123456,age=22]数组类型；
+            for(var i=0;i<arr1.length;i++){
+                var arr2=arr1[i].split("=");//通过=截断，把name=Jack截断成[name,Jack]数组；
+                if(arr2[0]==key){
+                    return decodeURI(arr2[1]);
+                }
+            }
+        }
+
+        function loadBlogList(blogdata) {
+            for(var blog in blogdata){
+                var blog_title = blogdata[blog]["blog_title"];
+                var blog_create_time = blogdata[blog]["create_time"];
+                var blog_type =  blogdata[blog]["blog_type"];
+                var blog_content = blogdata[blog]["blog_content"];
+                appendBlogBlock(blog_title,blog_create_time,blog_type,blog_content);
+            }
+        }
+
+        //根据后台传来的总博客数，设置前端的分页展示
+        var totalPageGlobal = 0;
+        function setPageAccordingBlogCount(blogCount) {
+            //先假设一页展示3条
+            var pageSize = 3;
+            var totalPage = blogCount / pageSize;
+            if(isInteger(totalPage)){
+                $("#totalPage").append("<span>共 "+totalPage+" 页</span>");
+            }else {
+                totalPage =  parseInt(blogCount / pageSize + 1);
+                $("#totalPage").append("<span>共 "+totalPage+" 页</span>");
+            }
+            totalPageGlobal = totalPage;
+            for(var i=1;i<totalPage+1;i++){
+                $("#pageHtml").append("<li ><a class='click"+i+"' value='"+i+"'>"+i+"</a></li>");
+            }
+        }
+
+        //点击翻页：最开始加载出来默认就是第一页，所以上一页按钮是隐藏的，如果是最后一页，则下一页按钮是隐藏的
+        $(".lastPage").hide();
+        //设置一个全局变量用来记录当前页码
+        var presentPage = 1;         //默认当前是第一页
+        $("#presentPage").append("<span>当前第 "+presentPage+" 页</span>");
+        $(document).on("click", "a", function () {
+            var page = $(this).attr("value");
+            var reg=/^[0-9]+.?[0-9]*$/;                  //正则表达式匹配数字
+            if(reg.test(page) || page === "last" || page === "next"){
+                //情况1：如果没点击上一页和下一页，就用presentPage记录当前页
+                if(page !== "last" && page !== "next" ){
+                    presentPage = page;
+                    if(presentPage <= 1){
+                        $(".lastPage").hide(500);
+                        $(".nextPage").show(500);
+                    }else if(presentPage > 1 && presentPage < totalPageGlobal){
+                        $(".lastPage").show(500);
+                        $(".nextPage").show(500);
+                    }else if(presentPage >= totalPageGlobal){
+                        $(".lastPage").show(500);
+                        $(".nextPage").hide(500);
+                    }
+                }
+                //情况2：如果点击的是上一页
+                if(page === "last"){                  //===表示恒等于，比较的两边要绝对的相同, ==先转换类型再比较
+                    //如果当前不是第一页，能点上一页按钮
+                    if(presentPage > 1){
+                        $(".nextPage").show(500);
+                        $(".lastPage").show(500);
+                        //如果不是第一页，就当前页码－1
+                        presentPage = presentPage - 1;
+                    }if(presentPage === 1){
+                        $(".lastPage").hide(500);
+                        $(".nextPage").show(500);
+                    }if(presentPage>totalPageGlobal){
+                        presentPage = totalPageGlobal;
+                    }if(presentPage<1){
+                        presentPage = 1;
+                    }
+                }
+                //情况3：如果点击的是下一页
+                if(page === "next"){
+                    //如果当前是最后一页，不能点下一页按钮
+                    if(presentPage < totalPageGlobal){
+                        $(".lastPage").show(500);
+                        presentPage = presentPage + 1;
+                    }if(presentPage>=totalPageGlobal){
+                        $(".nextPage").hide(500);
+                    }if(presentPage>totalPageGlobal){
+                        presentPage = totalPageGlobal;
+                    }if(presentPage<1){
+                        presentPage = 1;
+                    }
+                }
+                if(presentPage>=1 && presentPage<=totalPageGlobal){
+                    $.ajax({
+                        type:"POST",
+                        url:"/toPage",
+                        dataType:"json",
+                        data:{
+                            "user_id":getCookie("user_id"),
+                            "page":presentPage
+                        },
+                        success:function (msg) {
+                            $("#blog_list").html("");
+                            loadBlogList(msg);
+                        },
+                        error:function (msg) {
+                            console.log(msg);
+                        }
+                    })
+                }
+            }
+
+            $("#presentPage").html("");
+            $("#presentPage").append("<span>当前第 "+presentPage+" 页</span>");
+        })
+
+
+        //专门用来append博客列表块的方法：
+        function appendBlogBlock(blog_title,blog_create_time,blog_type,blog_content) {
+            $("#blog_list").append("<div class=\"ibox\">\n" +
+                "                            <div class=\"ibox-content\">\n" +
+                "                                <a href=\"article.html\" class=\"btn-link\">\n" +
+                "                                    <h2 id='gotoBlogDetail'><b>\n" +
+                blog_title+"\n" +
+                "                                    </b></h2>\n" +
+                "                                </a>\n" +
+                "                                <div class=\"small m-b-xs\">\n" +
+                "                                    <span class=\"text-muted\" style='font-size: 13px;color: #8da6ce'><i class=\"fa fa-clock-o\"></i> "+blog_create_time+"</span>\n" +
+                "                                </div>\n" +
+                "                                <p id='content_line_limit'>\n" +
+                blog_content+"\n" +
+                "                                </p>\n" +
+                "                                <div class=\"row\">\n" +
+                "                                    <div class=\"col-md-6\">\n" +
+                "                                        <h5>标签：</h5>\n" +
+                "                                        <button class=\"btn btn-primary btn-xs\" type=\"button\">"+blog_type+"</button>\n" +
+                // "                                        <button class=\"btn btn-white btn-xs\" type=\"button\">速比涛</button>\n" +
+                "                                    </div>\n" +
+                "                                    <div class=\"col-md-6\">\n" +
+                "                                        <div class=\"small text-right\">\n" +
+                "                                            <h5>状态：</h5>\n" +
+                "                                            <div> <i class=\"fa fa-comments-o\"> </i> 56 评论 </div>\n" +
+                "                                            <i class=\"fa fa-eye\"> </i> 144 浏览\n" +
+                "                                        </div>\n" +
+                "                                    </div>\n" +
+                "                                </div>\n" +
+                "                            </div>\n" +
+                "                        </div>")
+        }
+
+        //判断一个数字是否是整数
+        function isInteger(obj) {
+            return obj%1 === 0
+        }
+    })
+</script>
+</body>
+</html>

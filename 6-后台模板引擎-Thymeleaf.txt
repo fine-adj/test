@@ -1,0 +1,1 @@
+springboot官方推荐使用的模板引擎是thymeleaf，作用：配置好thymeleaf，可以扫描到resources/templates/*.html文件，如果不使用模板引擎在配置文件中配置，springboot不会自动扫描到resources/templates/*.html中的页面静态文件；另一种方法，在不使用thymeleaf的情况下，就需要在controller层中通过写return “xxx.html”来实现扫描前端页面静态文件的功能。

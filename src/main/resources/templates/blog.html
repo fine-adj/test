@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html llang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>blog</title>
+</head>
+<link rel="stylesheet" href="editormd/css/editormd.css" />
+<link rel="shortcut icon" href="img/favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+
+<body>
+    <div id="layout" class="editor">
+        <button id="saveblog">保存博客</button>
+        <input id="blog_type" type="text" placeholder="博客分类">
+        <input id="blog_title" type="text" placeholder="博客标题">
+
+        <div id="test-editormd">
+            <textarea id="content-form"></textarea>
+        </div>
+    </div>
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <!--<script src="editormd/lib/marked.min.js"></script>-->
+    <!--<script src="editormd/lib/prettify.min.js"></script>-->
+    <!--<script src="editormd/lib/raphael.min.js"></script>-->
+    <!--<script src="editormd/lib/underscore.min.js"></script>-->
+    <!--<script src="editormd/lib/sequence-diagram.min.js"></script>-->
+    <!--<script src="editormd/lib/flowchart.min.js"></script>-->
+<script src="editormd/editormd.js"></script>
+<script>
+    $(document).ready(function () {
+        var testEditor;
+        testEditor = editormd("test-editormd", {
+            placeholder:'本编辑器支持Markdown编辑，左边编写，右边预览',  //默认显示的文字，这里就不解释了
+            width: "90%",
+            height: 640,
+            syncScrolling: "single",
+            path: "editormd/lib/",   //你的path路径（原资源文件中lib包在我们项目中所放的位置）
+            theme: "light",//工具栏主题
+            previewTheme: "light",//预览主题
+            editorTheme: "paraiso-light",//编辑主题
+            saveHTMLToTextarea: true,
+            emoji: false,
+            taskList: true,
+            tocm: true,         // Using [TOCM]
+            tex: true,                   // 开启科学公式TeX语言支持，默认关闭
+            flowChart: true,             // 开启流程图支持，默认关闭
+            sequenceDiagram: true,       // 开启时序/序列图支持，默认关闭,
+            toolbarIcons : function() {  //自定义工具栏，后面有详细介绍
+                return editormd.toolbarModes['simple']; // full, simple, mini
+            },
+        });
+
+        // console.log(testEditor.getMarkdown());
+        // testEditor.setMarkdown("我能设置数据？");
+        // testEditor.getMarkdown();
+        // 在js中调用getMarkdown这个方法可以获得Markdown格式的文本。
+
+
+
+        //保存博客
+        $("#saveblog").click(function () {
+            var blog_content = $("#content-form").val();   //获取<textarea>中博客内容
+            console.log("blog_content:"+blog_content);
+            var blog_type = $("#blog_type").val();        //获取博客的分类标签
+            var blog_title = $("#blog_title").val();      //获取博客标题
+            if(blog_type == "" || blog_type == null || blog_title == "" || blog_title == null){
+                window.alert("分类与标题不能为空");
+            }else {
+                $.ajax({
+                    type:"POST",
+                    url:"/saveblog",
+                    dataType:"json",
+                    data:{
+                        "user_id":getCookie("user_id"),
+                        "blog_content":blog_content,
+                        "blog_type":blog_type,
+                        "blog_title":blog_title
+                    },
+                    success:function (msg) {
+                        if(msg.state == "SUCCESS"){
+                            alert("保存成功！");
+                            window.location.href="/userpage";
+                        }
+                        console.log(msg);
+                    },
+                    error:function (msg) {
+                        console.log(msg);
+                    }
+                })
+            }
+
+        })
+
+        function getCookie(key){
+            var arr1=document.cookie.split("; ");//由于cookie是通过一个分号+空格的形式串联起来的，所以这里需要先按分号空格截断,变成[name=Jack,pwd=123456,age=22]数组类型；
+            for(var i=0;i<arr1.length;i++){
+                var arr2=arr1[i].split("=");//通过=截断，把name=Jack截断成[name,Jack]数组；
+                if(arr2[0]==key){
+                    return decodeURI(arr2[1]);
+                }
+            }
+        }
+
+    })
+</script>
+</body>
+</html>

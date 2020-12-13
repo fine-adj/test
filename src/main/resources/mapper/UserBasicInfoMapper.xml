@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--若报错：URI is not registered (Settings | Languages & Frameworks | Schemas and DTDs)-->
+<!--则将该url配置到settings中的Schemas and DTDs中-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace= "com.userinfotemplate.demo.mapper.UserBasicInfoMapper" >
+    <resultMap id ="UserBasicInfoMapper" type="com.userinfotemplate.demo.entity.UserInfo">
+        <result column="username" property="username"/>
+        <result column="password" property="sex"/>
+        <result column="email" property="email"/>
+    </resultMap>
+
+
+    <insert id = "userRegister" >
+        insert into `user`(`username`, `password`, `email`) values (#{username},#{password},#{email});
+    </insert>
+
+    <select id = "isUserExist" resultType="java.lang.Integer" parameterType="com.userinfotemplate.demo.entity.UserInfo">
+        select count(*) from `user` where `username`= #{arg0} or `email`= #{arg1};
+    </select>
+
+    <select id="getUserInfoByNameOrEmail" parameterType="java.lang.String" resultType="com.userinfotemplate.demo.entity.UserInfo">
+        select * from `user` where `username` = #{arg0} or `email` = #{arg0};
+    </select>
+
+    <select id="getUserIdByName" resultType="java.lang.Integer" parameterType="com.userinfotemplate.demo.entity.UserInfo">
+        select `user_id` from `user` where `username`=#{username};
+    </select>
+
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--若报错：URI is not registered (Settings | Languages & Frameworks | Schemas and DTDs)-->
+<!--则将该url配置到settings中的Schemas and DTDs中-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace= "com.userinfotemplate.demo.mapper.NoteMapper" >
+    <resultMap id ="NoteMapper" type="com.userinfotemplate.demo.entity.Note">
+        <result column="note_id" property="note_id"/>
+        <result column="user_id" property="user_id"/>
+        <result column="note_type" property="note_type"/>
+        <result column="save_time" property="save_time"/>
+        <result column="note_content" property="note_content"/>
+    </resultMap>
+
+    <insert id = "createNote" >
+        insert into `note`(`user_id`,`save_time`,`note_type`,`note_content`) values (#{user_id},#{save_time},#{note_type},#{note_content});
+    </insert>
+
+    <!--按照便签类型查询一个用户的对应类型的便签-->
+    <select id = "getNoteListByTypeAndUserId" resultType="java.lang.Object" parameterType="com.userinfotemplate.demo.entity.Note">
+        select * from `note` where `user_id`=#{user_id} and `note_type`=#{note_type};
+    </select>
+
+    <!--根据标签id查询便签-->
+    <select id = "getNoteById" resultType="com.userinfotemplate.demo.entity.Note" parameterType="java.lang.Integer">
+        select * from `note` where `note_id`=#{note_id};
+    </select>
+
+</mapper>
