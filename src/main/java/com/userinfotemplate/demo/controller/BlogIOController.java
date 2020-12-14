@@ -41,7 +41,7 @@ public class BlogIOController {
         //存入文件：每个用户有一个自己的文件夹，博客文件名称为博客id_分类标签，例如：1_数据库
         //windows上与linux上的路径分隔符不同，要用：File.separator做路径转换符
         String filepath = "C:"+ File.separator+"Users"+File.separator+"Administrator"+File.separator+"Desktop"+File.separator+"userInfoTemplate_free"+
-                File.separator+"userInfoTemplate"+File.separator+user_id+"-"+blog_type+"-"+blog_title+".txt";
+                File.separator+"userInfoTemplate"+File.separator+"blogfile"+File.separator+user_id+"-"+blog_type+"-"+blog_title+".txt";
         FileOutputStream fileOutputStream = null;
         try{
             fileOutputStream  = new FileOutputStream(filepath);       //创建输出流
